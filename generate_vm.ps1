@@ -47,6 +47,10 @@ if ($usage.isPresent) {
     config.vm.box = "bento/MY_OS"
     #config.disksize.size = "8GB"
 
+    config.ssh.username = 'root'
+    config.ssh.password = 'vagrant'
+    config.ssh.insert_key = 'true'
+    
     #config.vm.network "public_network", ip: "192.168.1.201", bridge: "Marvell AVASTAR Wireless-AC Network Controller", bootproto: "static", gateway: "192.168.1.1"
     config.vm.network "private_network", ip: "MY_IP"
 
