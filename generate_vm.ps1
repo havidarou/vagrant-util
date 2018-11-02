@@ -52,6 +52,21 @@ if ($usage.isPresent) {
     #config.disksize.size = "8GB"
 
     #config.vm.network "public_network", ip: "192.168.1.201", bridge: "Marvell AVASTAR Wireless-AC Network Controller", bootproto: "static", gateway: "192.168.1.1"
+    
+    #config.vm.provision "shell",
+    #inline: "whoami"
+
+    # And finally run the Ansible local provisioner
+    #config.vm.provision "ansible_local" do |ansible|
+    #ansible.become = "yes"
+    #ansible.provisioning_path = "/vagrant/provisioning/wazuh-ansible"
+    #ansible.inventory_path = "inventory"
+    #ansible.playbook = "wazuh-agent.yml"
+    #ansible.limit = "all"
+    #ansible.verbose = "true"
+    #ansible.playbook_command = "sudo ansible-playbook"
+    #end    
+    
     config.vm.network "private_network", ip: "MY_IP"
 
     # Set memory for the default VM
