@@ -40,59 +40,72 @@ if ($usage.isPresent) {
     } else {
         if ($reset.isPresent) {
             # Reset counter
-            Set-Content -Path .\storedId -Value 0
+            Set-Content -Path .\storedId -Value 3
         } else {
             $vagrantfile = '
-    # -*- mode: ruby -*-
-    # vi: set ft=ruby :
+            # -*- mode: ruby -*-
+            # vi: set ft=ruby :
 
-    Vagrant.configure("2") do |config|
+            Vagrant.configure("2") do |config|
 
-    config.vm.box = "MY_FAMILY/MY_OS"
-    #config.disksize.size = "8GB"
+                config.vm.box = "MY_FAMILY/MY_OS"
 
-    #config.vm.network "public_network", ip: "192.168.1.201", bridge: "Marvell AVASTAR Wireless-AC Network Controller", bootproto: "static", gateway: "192.168.1.1"
+                #config.vm.network "public_network", ip: "192.168.1.201", bridge: "Marvell AVASTAR Wireless-AC Network Controller", bootproto: "static", gateway: "192.168.1.1"
     
-    #config.vm.provision "shell",
-    #inline: "whoami"
+                #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
 
-    # And finally run the Ansible local provisioner
-    #config.vm.provision "ansible_local" do |ansible|
-    #ansible.become = "yes"
-    #ansible.provisioning_path = "/vagrant/provisioning/wazuh-ansible"
-    #ansible.inventory_path = "inventory"
-    #ansible.playbook = "wazuh-agent.yml"
-    #ansible.limit = "all"
-    #ansible.verbose = "true"
-    #ansible.playbook_command = "sudo ansible-playbook"
-    #end    
-    
-    config.vm.network "private_network", ip: "MY_IP"
+                #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
+        
+                config.vm.network "private_network", ip: "MY_IP"
 
-    # Set memory for the default VM
-    config.vm.provider "virtualbox" do |vb|
-    vb.memory = "MY_MEMORY"
-    vb.name = "MY_NAME"
-    end
+                config.vm.provider "virtualbox" do |vb|
+                    vb.memory = "MY_MEMORY"
+                    vb.name = "MY_NAME"
+                    #vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"] 
+                end
 
-    # Configure the hostname for the default machine
-    config.vm.hostname = "MY_NAME"
+                config.vm.hostname = "MY_NAME"
 
-    end    
-    '
+                #config.vm.provision "ansible_local" do |ansible|
+                    #ansible.become = "yes"
+                    #ansible.provisioning_path = "/vagrant/provisioning/wazuh-ansible"
+                    #ansible.inventory_path = "inventory"
+                    #ansible.playbook = "wazuh-agent.yml"
+                    #ansible.limit = "all"
+                    #ansible.verbose = "true"
+                    #ansible.playbook_command = "sudo ansible-playbook"
+                #end    
+
+            end'
 
             if ($family -eq "windows") {
                 if ($os -eq "windows-2012") {
-                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2012-standard-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2012r2-standard-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "opentable"
                 }
                 if ($os -eq "windows-2008") {
-                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2008-standard-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2008r2-standard-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "opentable"
                 }
                 if ($os -eq "windows-8") {
-                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-8-pro-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "windows-8-professional-x64"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "universalvishwa"
                 }
                 if ($os -eq "windows-7") {
-                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-7-professional-amd64-nocm"
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "win-7-enterprise"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "senglin"
+                }
+                if ($os -eq "windows-10") {
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "EdgeOnWindows10"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "Microsoft"
+                }
+                if ($os -eq "windows-xp") {
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "Windows_xp_sp2_Puppet"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "therealslimpagey"
+                }
+                if ($os -eq "windows-2016") {
+                    $vagrantfile = $vagrantfile -replace 'MY_OS', "Windows2016"
+                    $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "mwrock"
                 }
             }
             if ($family -eq "linux") {
@@ -103,14 +116,10 @@ if ($usage.isPresent) {
             if (Test-Path .\storedId) {
                 $storedId = Get-Content .\storedId
             } else {
-                $storedId = 0
+                $storedId = 3
             }
 
-            if ($storedId -ne 0) {
-                $id = [int]$storedId + 1
-            } else {
-                $id = 1
-            }
+            $id = [int]$storedId + 1
 
             Set-Content -Path .\storedId -Value $id
             $vagrantfile = $vagrantfile -replace 'MY_IP', "11.0.0.$id"
@@ -120,12 +129,12 @@ if ($usage.isPresent) {
                 $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "bento"
             } 
             if ($family -eq "windows") {
-                $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "opentable"
+                $vagrantfile = $vagrantfile -replace '#config.vm.provision "she', 'config.vm.provision "she'
+                $vagrantfile = $vagrantfile -replace '#vb.customize', 'vb.customize'
             }
 
             $folderName = "$os-$id"
             mkdir $folderName
-            mkdir $folderName\shared
 
             Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
 
