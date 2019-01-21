@@ -33,10 +33,6 @@ if ($usage.isPresent) {
         cd ..
         rmdir $destroy -Force -Recurse
 
-        if ($family -eq "linux") {
-            (Get-Content "C:\Users\havid\Documents\MobaXterm\MobaXterm.ini" -Raw) -replace("$destroy.*`r`n", "") | Set-Content "C:\Users\havid\Documents\MobaXterm\MobaXterm.ini"
-        }
-
     } else {
         if ($reset.isPresent) {
             # Reset counter
@@ -137,11 +133,6 @@ if ($usage.isPresent) {
             mkdir $folderName
 
             Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
-
-            if ($family -eq "linux") {
-                $session = "$os-$id=#109#0%11.0.0.$id%22%vagrant%%-1%-1%%%22%%0%0%0%%%-1%0%0%0%%1080%%0%0%1#MobaFont%10%0%0%0%15%236,236,236%0,0,0%180,180,192%0%-1%0%%xterm%-1%0%0,0,0%54,54,54%255,96,96%255,128,128%96,255,96%128,255,128%255,255,54%255,255,128%96,96,255%128,128,255%255,54,255%255,128,255%54,255,255%128,255,255%236,236,236%255,255,255%80%24%0%1%-1%<none>%%0#0#"
-                (Get-Content "C:\Users\havid\Documents\MobaXterm\MobaXterm.ini" -Raw) -replace("SubRep=VMs`r`nImgNum=41", "SubRep=VMs`r`nImgNum=41`r`n$session") | Set-Content "C:\Users\havid\Documents\MobaXterm\MobaXterm.ini"
-            }
 
             cd $folderName
             vagrant up
