@@ -6,6 +6,7 @@ param (
     [string]$family = "linux",
     [string]$destroy = "",
     [string]$memory = "1024",
+    [string]$cpu = "1",
     [switch]$help
     )
 
@@ -28,8 +29,8 @@ if ($usage.isPresent) {
     if ($destroy -ne "") {
         # Clean VM
         cd $destroy
-        vagrant halt
-        vagrant destroy
+        vagrant halt 
+        vagrant destroy -f
         cd ..
         rmdir $destroy -Force -Recurse
 
@@ -56,6 +57,7 @@ if ($usage.isPresent) {
 
                 config.vm.provider "virtualbox" do |vb|
                     vb.memory = "MY_MEMORY"
+                    vb.cpus = "MY_CPU"
                     vb.name = "MY_NAME"
                     #vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"] 
                 end
@@ -121,6 +123,7 @@ if ($usage.isPresent) {
             $vagrantfile = $vagrantfile -replace 'MY_IP', "11.0.0.$id"
             $vagrantfile = $vagrantfile -replace 'MY_NAME', "vagrant-$os-$id"
             $vagrantfile = $vagrantfile -replace 'MY_MEMORY', "$memory"
+            $vagrantfile = $vagrantfile -replace 'MY_CPU', "$cpu"
             if ($family -eq "linux") {
                 $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "bento"
             } 
