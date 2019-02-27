@@ -51,8 +51,7 @@ if ($usage.isPresent) {
     
                 #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
 
-                #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
-        
+                #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf"        
                 config.vm.network "private_network", ip: "MY_IP"
 
                 config.vm.provider "virtualbox" do |vb|
@@ -126,9 +125,10 @@ if ($usage.isPresent) {
             $vagrantfile = $vagrantfile -replace 'MY_CPU', "$cpu"
             if ($family -eq "linux") {
                 $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "bento"
+                $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "echo', 'config.vm.provision "shell", inline: "echo'
             } 
             if ($family -eq "windows") {
-                $vagrantfile = $vagrantfile -replace '#config.vm.provision "she', 'config.vm.provision "she'
+                $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "netsh', 'config.vm.provision "shell", inline: "netsh'
                 $vagrantfile = $vagrantfile -replace '#vb.customize', 'vb.customize'
             }
 
