@@ -4,6 +4,7 @@ param (
     [switch]$reset,
     [string]$os = "centos-7",
     [string]$family = "linux",
+    [string]$name = "default",
     [string]$destroy = "",
     [string]$memory = "1024",
     [string]$cpu = "1",
@@ -53,6 +54,8 @@ if ($usage.isPresent) {
 
                 #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf"        
                 config.vm.network "private_network", ip: "MY_IP"
+
+                config.vm.define "VAGRANT_NAME"
 
                 config.vm.provider "virtualbox" do |vb|
                     vb.memory = "MY_MEMORY"
@@ -121,6 +124,7 @@ if ($usage.isPresent) {
             Set-Content -Path .\storedId -Value $id
             $vagrantfile = $vagrantfile -replace 'MY_IP', "11.0.0.$id"
             $vagrantfile = $vagrantfile -replace 'MY_NAME', "vagrant-$os-$id"
+            $vagrantfile = $vagrantfile -replace 'VAGRANT_NAME', "$name"
             $vagrantfile = $vagrantfile -replace 'MY_MEMORY', "$memory"
             $vagrantfile = $vagrantfile -replace 'MY_CPU', "$cpu"
             if ($family -eq "linux") {
