@@ -52,7 +52,7 @@ if ($usage.isPresent) {
     
                 #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
 
-                #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf"        
+                #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf && cat /vagrant/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys && rm -f /vagrant/id_rsa.pub"        
                 config.vm.network "private_network", ip: "MY_IP"
 
                 config.vm.define "VAGRANT_NAME"
@@ -141,6 +141,11 @@ if ($usage.isPresent) {
 
             Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
 
+            # Copy ansible keys
+            cp C:\Users\havid\DATA\keys\ansible\id_rsa.pub $folderName\
+
+            # Add new instance to ansible server hosts
+            wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
             cd $folderName
             vagrant up
 
