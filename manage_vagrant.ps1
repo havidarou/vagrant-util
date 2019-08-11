@@ -145,6 +145,8 @@ if ($usage.isPresent) {
             vagrant up
 
             cd ..
+
+            vagrant global-status --prune
         }
     }
 }
