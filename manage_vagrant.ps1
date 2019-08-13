@@ -52,7 +52,7 @@ if ($usage.isPresent) {
     
                 #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
 
-                #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf && cat /vagrant/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys && rm -f /vagrant/id_rsa.pub"        
+                #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf && cat /vagrant/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys && rm -f /vagrant/id_rsa.pub && curl -sSL https://get.docker.com/ | sh && curl -L https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && echo vm.max_map_count=262144 >> /etc/sysctl.conf && sysctl -w vm.max_map_count=262144 && systemctl enable docker && systemctl start docker"   
                 config.vm.network "private_network", ip: "MY_IP"
 
                 config.vm.define "VAGRANT_NAME"
@@ -150,6 +150,8 @@ if ($usage.isPresent) {
             vagrant up
 
             cd ..
+
+            vagrant global-status
         }
     }
 }
