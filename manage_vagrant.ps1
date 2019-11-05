@@ -6,8 +6,8 @@ param (
     [switch]$list,
     [string]$os = "centos-7",
     [string]$memory = "1024",
-    [string]$base_path = "C:\Users\havid\DATA\vagrant-util",
-    [string]$wsl_base_path = "/mnt/c/Users/havid/DATA/vagrant-util",
+    [string]$base_path = "C:\Users\havid\vagrant-util",
+    [string]$wsl_base_path = "/mnt/c/Users/havid/vagrant-util",
     [string]$cpu = "1",
     [string]$halt = "",
     [string]$ssh = "",
@@ -127,6 +127,9 @@ function configure
 
 #--------------------------- Main workflow ----------------------------#
 
+# Move to working directory
+cd $base_path
+
 # ssh into VM
 if ($ssh -ne "") {
     cd $ssh
@@ -196,7 +199,7 @@ mkdir $folderName
 Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
 
 # Copy ansible keys
-cp C:\Users\havid\DATA\keys\ansible\id_rsa.pub $folderName\
+cp C:\Users\havid\DATA\medu-netjer\ansible\id_rsa.pub $folderName\
 
 # Add new instance to ansible server hosts
 wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
