@@ -40,7 +40,7 @@ Vagrant.configure("2") do |config|
 
     #config.vm.provision "shell", inline: "netsh advfirewall set allprofiles state off"
 
-    #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf && cat /vagrant/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys && curl -sSL https://get.docker.com/ | sh && curl -L https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && echo vm.max_map_count=262144 >> /etc/sysctl.conf && sysctl -w vm.max_map_count=262144 && systemctl enable docker && systemctl start docker"
+    #config.vm.provision "shell", inline: "echo nameserver 8.8.8.8 > /etc/resolv.conf && cat /vagrant/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys && curl -sSL https://get.docker.com/ | sh && curl -L https://github.com/docker/compose/releases/download/1.23.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose && echo vm.max_map_count=262144 >> /etc/sysctl.conf && sysctl -w vm.max_map_count=262144 && systemctl enable docker && systemctl start docker && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python get-pip.py && rm get-pip.py"
     config.vm.network "private_network", ip: "MY_IP"
 
     config.vm.define "VAGRANT_NAME"
@@ -64,11 +64,16 @@ function destroy
     cd $destroy
     vagrant halt
     vagrant destroy -f
+
+    # Get VM IP
+    $id = Get-Content .\Vagrantfile | findstr config.vm.network
+    $id = $id.split(" ")[-1].trim('"')
+
     cd ..
     rmdir $destroy -Force -Recurse
 
     # Remove instance from ansible server hosts
-    wsl sudo sed -i "s/11.0.0.$id ansible_ssh_user=vagrant//" /etc/ansible/hosts
+    wsl sudo sed -i "/$id/d" /etc/ansible/hosts
 }
 
 # Configure vagrant box
@@ -117,8 +122,8 @@ function configure
     }
 
     $vagrantfile = $vagrantfile -replace 'MY_IP', "11.0.0.$id"
-    $vagrantfile = $vagrantfile -replace 'MY_NAME', "vagrant-$os-$id"
-    $vagrantfile = $vagrantfile -replace 'VAGRANT_NAME', "$name"
+    $vagrantfile = $vagrantfile -replace 'MY_NAME', "$name-$os-$id"
+    $vagrantfile = $vagrantfile -replace 'VAGRANT_NAME', "$os-$id"
     $vagrantfile = $vagrantfile -replace 'MY_MEMORY', "$memory"
     $vagrantfile = $vagrantfile -replace 'MY_CPU', "$cpu"
 
