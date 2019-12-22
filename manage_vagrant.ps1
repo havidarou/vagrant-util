@@ -158,7 +158,7 @@ if ($name -ne "") {
     Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
 
     # Copy ansible keys
-    cp C:\Users\havid\DATA\medu-netjer\ansible\id_rsa.pub $folderName\
+    cp C:\Users\havid\DATA\keys\ansible\id_rsa.pub $folderName\
 
     # Add new instance to ansible server hosts
     wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
@@ -183,9 +183,6 @@ if ($name -ne "") {
         # Download docker-compose.yml file
         wsl curl -so $wsl_base_path/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/3.10.2_7.3.2/docker-compose.yml
     }
-
-    # Print status
-    vagrant global-status --prune
 }
 # Otherwise, consider other commands
 else {
