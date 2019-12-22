@@ -18,6 +18,8 @@ param (
 
 #------------------------- Gather parameters --------------------------#
 
+# ------------------------- Common functions ------------------------- #
+
 # Usage
 function Usage
 {
@@ -128,104 +130,109 @@ function configure
 #--------------------------- Main workflow ----------------------------#
 
 # Move to working directory
+$current_path = pwd
 cd $base_path
 
-# ssh into VM
-if ($ssh -ne "") {
-    cd $ssh
+# If name was provided, generate vm
+if ($name -ne "") {
+
+    # Read stored ID
+    if (Test-Path .\storedId) {
+        $storedId = Get-Content .\storedId
+    } else {
+        $storedId = 3
+    }
+
+    # Increase ID counter
+    $id = [int]$storedId + 1
+    Set-Content -Path .\storedId -Value $id
+
+    # Configure vagrantfile
+    $vagrantfile = configure
+
+    # Create vagrant VM folder
+    $folderName = "$name"
+    mkdir $folderName
+
+    # Write Vagrantfile to VM folder
+    Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
+
+    # Copy ansible keys
+    cp C:\Users\havid\DATA\medu-netjer\ansible\id_rsa.pub $folderName\
+
+    # Add new instance to ansible server hosts
+    wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
+
+    # Start vagrant VM
+    cd $folderName
     vagrant up
-    vagrant ssh
-    cd ..
-    exit
-}
+    cd $current_path
 
-# Halt VM
-if ($halt -ne "") {
-    cd $halt
-    vagrant halt
-    cd ..
-    exit
-}
+    if ($deploy -eq "ansible") {
+        # Clone wazuh-ansible repository
+        git clone https://github.com/wazuh/wazuh-ansible $base_path\$folderName\wazuh-ansible
 
-# Clean vagrant VM
-if ($destroy -ne "") {
-    destroy
-    exit
-}
+        # Add target host to playbook
+        (Get-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml"
 
-# List vagrant VMs
-if ($list.isPresent) {
+        # Execute playbook
+        wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/$folderName/wazuh-ansible/playbooks/wazuh-elastic_stack-single.yml --become
+    }
+
+    if ($deploy -eq "docker") {
+        # Download docker-compose.yml file
+        wsl curl -so $wsl_base_path/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/3.10.2_7.3.2/docker-compose.yml
+    }
+
+    # Print status
     vagrant global-status --prune
-    exit
 }
+# Otherwise, consider other commands
+else {
+    # ssh into VM
+    if ($ssh -ne "") {
+        cd $ssh
+        vagrant up
+        vagrant ssh
+        cd $current_path
+        exit
+    }
 
-# Reset counter
-if ($reset.isPresent) {
-    Set-Content -Path .\storedId -Value 3
-    exit
+    # Halt VM
+    if ($halt -ne "") {
+        cd $halt
+        vagrant halt
+        cd $current_path
+        exit
+    }
+
+    # Clean vagrant VM
+    if ($destroy -ne "") {
+        destroy
+        cd $current_path
+        exit
+    }
+
+    # List vagrant VMs
+    if ($list.isPresent) {
+        vagrant global-status --prune
+        cd $current_path
+        exit
+    }
+
+    # Reset counter
+    if ($reset.isPresent) {
+        Set-Content -Path .\storedId -Value 3
+        cd $current_path
+        exit
+    }
+
+    # Print usage
+    if ($usage.isPresent) {
+        usage
+        cd $current_path
+        exit
+    }
 }
-
-# Check name parameter
-if ($name -eq "") {
-    "No vagrant VM name was provided"
-    exit
-}
-
-# Print usage
-if ($usage.isPresent) {
-    usage
-    exit
-}
-
-# Read stored ID
-if (Test-Path .\storedId) {
-    $storedId = Get-Content .\storedId
-} else {
-    $storedId = 3
-}
-
-# Increase ID counter
-$id = [int]$storedId + 1
-Set-Content -Path .\storedId -Value $id
-
-# Configure vagrantfile
-$vagrantfile = configure
-
-# Create vagrant VM folder
-$folderName = "$name"
-mkdir $folderName
-
-# Write Vagrantfile to VM folder
-Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
-
-# Copy ansible keys
-cp C:\Users\havid\DATA\medu-netjer\ansible\id_rsa.pub $folderName\
-
-# Add new instance to ansible server hosts
-wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
-
-# Start vagrant VM
-cd $folderName
-vagrant up
-cd ..
-
-if ($deploy -eq "ansible") {
-    # Clone wazuh-ansible repository
-    git clone https://github.com/wazuh/wazuh-ansible $base_path\$folderName\wazuh-ansible
-
-    # Add target host to playbook
-    (Get-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml"
-
-    # Execute playbook
-    wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/$folderName/wazuh-ansible/playbooks/wazuh-elastic_stack-single.yml --become
-}
-
-if ($deploy -eq "docker") {
-    # Download docker-compose.yml file
-    wsl curl -so $wsl_base_path/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/3.10.2_7.3.2/docker-compose.yml
-}
-
-# Print status
-vagrant global-status
 
 #--------------------------- Main workflow ----------------------------#
