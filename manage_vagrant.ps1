@@ -6,8 +6,8 @@ param (
     [switch]$list,
     [string]$os = "centos-7",
     [string]$memory = "1024",
-    [string]$base_path = "C:\Users\havid\vagrant-util",
-    [string]$wsl_base_path = "/mnt/c/Users/havid/vagrant-util",
+    [string]$base_path = "C:\Users\havid\",
+    [string]$wsl_base_path = "/mnt/c/Users/havid/",
     [string]$cpu = "1",
     [string]$halt = "",
     [string]$ssh = "",
@@ -145,7 +145,7 @@ function configure
 
 # Move to working directory
 $current_path = pwd
-cd $base_path
+cd $base_path\vagrant-util
 
 # If name was provided, generate vm
 if ($name -ne "") {
@@ -172,7 +172,7 @@ if ($name -ne "") {
     Set-Content -Path .\$folderName\Vagrantfile -Value $vagrantfile
 
     # Copy ansible keys
-    cp C:\Users\havid\DATA\keys\ansible\id_rsa.pub $folderName\
+    cp $base_path\DATA\keys\id_rsa.pub $folderName\
 
     # Add new instance to ansible server hosts
     wsl echo "11.0.0.$id ansible_ssh_user=vagrant" | wsl sudo tee -a /etc/ansible/hosts
@@ -184,21 +184,21 @@ if ($name -ne "") {
 
     if ($deploy -eq "ansible") {
         # Clone wazuh-ansible repository
-        git clone  --single-branch --branch master https://github.com/wazuh/wazuh-ansible $base_path\$folderName\wazuh-ansible
+        git clone  --single-branch --branch master https://github.com/wazuh/wazuh-ansible $base_path\vagrant-util\$folderName\wazuh-ansible
 
         # Add target host to playbook
-        (Get-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml"
+        (Get-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml"
 
         # Execute playbook
-        wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/$folderName/wazuh-ansible/playbooks/wazuh-elastic_stack-single.yml --become
+        wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/vagrant-util/$folderName/wazuh-ansible/playbooks/wazuh-elastic_stack-single.yml --become
     }
 
     if ($deploy -eq "docker") {
         # Download docker-compose.yml file
         if ($version -ne "") {
-            wsl curl -so $wsl_base_path/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/$version/docker-compose.yml
+            wsl curl -so $wsl_base_path/vagrant-util/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/$version/docker-compose.yml
         } else {
-            wsl curl -so $wsl_base_path/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/master/docker-compose.yml
+            wsl curl -so $wsl_base_path/vagrant-util/$folderName/docker-compose.yml https://raw.githubusercontent.com/wazuh/wazuh-docker/master/docker-compose.yml
         }
     }
 }
