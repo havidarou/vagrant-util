@@ -131,8 +131,8 @@ function configure
     }
 
     $vagrantfile = $vagrantfile -replace 'MY_IP', "11.0.0.$id"
-    $vagrantfile = $vagrantfile -replace 'MY_NAME', "$name-$os-$id"
-    $vagrantfile = $vagrantfile -replace 'VAGRANT_NAME', "$os-$id"
+    $vagrantfile = $vagrantfile -replace 'MY_NAME', "$name-$id-$os"
+    $vagrantfile = $vagrantfile -replace 'VAGRANT_NAME', "$id-$os"
     $vagrantfile = $vagrantfile -replace 'MY_MEMORY', "$memory"
     $vagrantfile = $vagrantfile -replace 'MY_CPU', "$cpu"
 
