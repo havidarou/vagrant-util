@@ -187,10 +187,10 @@ if ($name -ne "") {
         git clone  --single-branch --branch master https://github.com/wazuh/wazuh-ansible $base_path\vagrant-util\$folderName\wazuh-ansible
 
         # Add target host to playbook
-        (Get-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-elastic_stack-single.yml"
+        (Get-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-odfe-single.yml") -replace("<your server host>", "11.0.0.$id") | Set-Content "$base_path\vagrant-util\$folderName\wazuh-ansible\playbooks\wazuh-odfe-single.yml"
 
         # Execute playbook
-        wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/vagrant-util/$folderName/wazuh-ansible/playbooks/wazuh-elastic_stack-single.yml --become
+        wsl ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook $wsl_base_path/vagrant-util/$folderName/wazuh-ansible/playbooks/wazuh-odfe-single.yml --become
     }
 
     if ($deploy -eq "docker") {
