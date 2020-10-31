@@ -126,7 +126,7 @@ function configure
         $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "echo', 'config.vm.provision "shell", inline: "echo'
 
         if ($deploy -eq "docker") {
-            $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "echo', 'config.vm.provision "shell", inline: "curl'
+            $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "curl', 'config.vm.provision "shell", inline: "curl'
         }
     }
 
