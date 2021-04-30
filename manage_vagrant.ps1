@@ -4,10 +4,10 @@ param (
     [switch]$reset,
     [switch]$help,
     [switch]$list,
-    [string]$os = "centos-7",
+    [string]$os = "ubuntu-18.04",
     [string]$memory = "1024",
-    [string]$base_path = "C:\Users\havid\",
-    [string]$wsl_base_path = "/mnt/c/Users/havid/",
+    [string]$base_path = "C:\Users\havida\",
+    [string]$wsl_base_path = "/mnt/c/Users/havida/",
     [string]$cpu = "1",
     [string]$halt = "",
     [string]$ssh = "",
@@ -90,8 +90,8 @@ function configure
         $vagrantfile = $vagrantfile -replace '#config.vm.provision "shell", inline: "netsh', 'config.vm.provision "shell", inline: "netsh'
         $vagrantfile = $vagrantfile -replace '#vb.customize', 'vb.customize'
         if ($os -eq "windows-2012") {
-            $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2012r2-standard-amd64-nocm"
-            $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "opentable"
+            $vagrantfile = $vagrantfile -replace 'MY_OS', "Windows2012R2"
+            $vagrantfile = $vagrantfile -replace 'MY_FAMILY', "mwrock"
         }
         if ($os -eq "windows-2008") {
             $vagrantfile = $vagrantfile -replace 'MY_OS', "win-2008r2-standard-amd64-nocm"
